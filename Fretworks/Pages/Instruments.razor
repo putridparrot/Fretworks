@@ -5,52 +5,68 @@
 
 <PageTitle>Instruments</PageTitle>
 
-<MudDataGrid T="InstrumentViewModel" MultiSelection="false" Items="@_all" SortMode="SortMode.Multiple" Filterable="true" QuickFilter="@QuickFilter"
-Hideable="true" RowClick="@RowClicked" RowContextMenuClick="RowRightClicked" SelectedItemChanged="@SelectedItemChanged"
-RowStyleFunc="RowStyle">
-    <ToolBarContent>
-        <MudText Typo="Typo.h6">Instruments</MudText>
-        <MudSpacer />
-        <MudTextField @bind-Value="_searchString" Placeholder="Search" Adornment="Adornment.Start" Immediate="true"
-        AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
-    </ToolBarContent>    
-    <Columns>
-        <PropertyColumn Property="x => x.Name" Title="Name" />
-        <PropertyColumn Property="x => x.Frets" />
-        <PropertyColumn Property="x => x.NutWidthString"  Title="Nut Width" />
-        <PropertyColumn Property="x => x.Headless" />
-        <PropertyColumn Property="x => x.ScaleLength" Title="Scale Length"/>
-        <PropertyColumn Property="x => x.IsMultiScale" Title="Multi-scale" />
-        <PropertyColumn Property="x => x.BassScaleLength" Title="Bass Scale Length" />
-        <PropertyColumn Property="x => x.TrebleScaleLength" Title="Treble Scale Length" />
-        <PropertyColumn Property="x => x.NeutralFret" Title="Neutral Fret" />
-    </Columns>
-    <PagerContent>
-        <MudDataGridPager T="InstrumentViewModel" />
-    </PagerContent>
-</MudDataGrid>
+@if (_isLoading)
+{
+    <div class="center-container">
+        <MudProgressCircular Indeterminate="true" Size="Size.Large" Color="Color.Primary" />
+    </div>
+}
+else
+{
+    <MudDataGrid T="InstrumentViewModel" MultiSelection="false" Items="@_all" SortMode="SortMode.Multiple" Filterable="true" QuickFilter="@QuickFilter"
+    Hideable="true" RowClick="@RowClicked" RowContextMenuClick="RowRightClicked" SelectedItemChanged="@SelectedItemChanged"
+    RowStyleFunc="RowStyle">
+        <ToolBarContent>
+            <MudText Typo="Typo.h6">Instruments</MudText>
+            <MudSpacer/>
+            <MudTextField @bind-Value="_searchString" Placeholder="Search" Adornment="Adornment.Start" Immediate="true"
+            AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+        </ToolBarContent>
+        <Columns>
+            <PropertyColumn Property="x => x.Name" Title="Name"/>
+            <PropertyColumn Property="x => x.Frets"/>
+            <PropertyColumn Property="x => x.NutWidthString" Title="Nut Width"/>
+            <PropertyColumn Property="x => x.Headless"/>
+            <PropertyColumn Property="x => x.ScaleLength" Title="Scale Length"/>
+            <PropertyColumn Property="x => x.IsMultiScale" Title="Multi-scale"/>
+            <PropertyColumn Property="x => x.BassScaleLength" Title="Bass Scale Length"/>
+            <PropertyColumn Property="x => x.TrebleScaleLength" Title="Treble Scale Length"/>
+            <PropertyColumn Property="x => x.NeutralFret" Title="Neutral Fret"/>
+        </Columns>
+        <PagerContent>
+            <MudDataGridPager T="InstrumentViewModel"/>
+        </PagerContent>
+    </MudDataGrid>
+}
 
 @code {
     private List<InstrumentViewModel>? _all;
     private string? _searchString;
     private InstrumentViewModel? _selectedItem;
+    private bool _isLoading = true;
     //private List<string> _events = new();
 
-    protected override Task OnInitializedAsync()
+    protected override async Task OnInitializedAsync()
     {
-        _all = InstrumentSpecifications.Specifications.SelectMany(kv => kv.Value)
-            .Select(i =>
-            {
-                if(i is SingleScaleInstrumentSpecification si)
-                    return new InstrumentViewModel(si.Name, si.Frets, si.NutWidth, si.Headless, si.Units, si.ScaleLength);
-                if(i is MultiScaleInstrumentSpecification mi)
-                    return new InstrumentViewModel(mi.Name, mi.Frets, mi.NutWidth, mi.Headless, mi.Units, null, mi.NeutralFret, mi.BassScaleLength, mi.TrebleScaleLength);
+        try
+        {
+            _all = InstrumentSpecifications.Specifications.SelectMany(kv => kv.Value)
+                .Select(i =>
+                {
+                    if (i is SingleScaleInstrumentSpecification si)
+                        return new InstrumentViewModel(si.Name, si.Frets, si.NutWidth, si.Headless, si.Units, si.ScaleLength);
+                    if (i is MultiScaleInstrumentSpecification mi)
+                        return new InstrumentViewModel(mi.Name, mi.Frets, mi.NutWidth, mi.Headless, mi.Units, null, mi.NeutralFret, mi.BassScaleLength, mi.TrebleScaleLength);
 
-                return null;
-            })
-            .Where(i => i is not null)
-            .ToList();
-        return base.OnInitializedAsync();
+                    return null;
+                })
+                .Where(i => i is not null)
+                .ToList();
+        }
+        finally
+        {
+            _isLoading = false;
+        }
     }
 
 
@@ -85,3 +101,4 @@ RowStyleFunc="RowStyle">
         _selectedItem = item;
     }
 }
+
