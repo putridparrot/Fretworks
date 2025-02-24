@@ -11,6 +11,5 @@ public interface IInstrumentSpecification
     int Id { get; }
     int Frets { get; }
     double NutWidth { get; }
-
-    string NutWidthString => NutWidth <= 0 ? "" : NutWidth.ToString();
+    bool Headless { get; }
 }
