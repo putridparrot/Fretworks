@@ -1,0 +1,73 @@
+﻿@page "/Instruments"
+@using PutridParrot.FretPositions
+@inject InstrumentSpecifications InstrumentSpecifications
+
+<PageTitle>Instruments</PageTitle>
+
+<MudDataGrid T="IInstrumentSpecification"  MultiSelection="false" Items="@_all" SortMode="SortMode.Multiple" Filterable="true" QuickFilter="@QuickFilter"
+Hideable="true" RowClick="@RowClicked" RowContextMenuClick="RowRightClicked" SelectedItemChanged="@SelectedItemChanged"
+RowStyleFunc="RowStyle">
+    <ToolBarContent>
+        <MudText Typo="Typo.h6">Instruments</MudText>
+        <MudSpacer />
+        <MudTextField @bind-Value="_searchString" Placeholder="Search" Adornment="Adornment.Start" Immediate="true"
+        AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+    </ToolBarContent>    
+    <Columns>
+        <PropertyColumn Property="x => x.Name" Title="Name" />
+        <PropertyColumn Property="x => x.Frets" />
+        <PropertyColumn Property="x => x.NutWidthString"  Title="Nut Width" />
+    </Columns>
+    <PagerContent>
+        <MudDataGridPager T="IInstrumentSpecification" />
+    </PagerContent>
+</MudDataGrid>
+
+@code {
+    private List<IInstrumentSpecification>? _all;
+    private string _searchString;
+    private IInstrumentSpecification _selectedItem;
+    //private List<string> _events = new();
+
+    protected override Task OnInitializedAsync()
+    {
+        _all = InstrumentSpecifications.Specifications.SelectMany(kv => kv.Value).ToList();
+        return base.OnInitializedAsync();
+    }
+
+
+    private Func<IInstrumentSpecification, bool> QuickFilter => x =>
+    {
+        if (string.IsNullOrWhiteSpace(_searchString))
+            return true;
+
+        if (x.Name.Contains(_searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        return false;
+    };
+
+    private void RowClicked(DataGridRowClickEventArgs<IInstrumentSpecification> args)
+    {
+        //_events.Insert(0, $"Event = RowClick, Index = {args.RowIndex}, Data = {System.Text.Json.JsonSerializer.Serialize(args.Item)}");
+    }
+
+    private void RowRightClicked(DataGridRowClickEventArgs<IInstrumentSpecification> args)
+    {
+        //_events.Insert(0, $"Event = RowRightClick, Index = {args.RowIndex}, Data = {System.Text.Json.JsonSerializer.Serialize(args.Item)}");
+    }
+
+    private string RowStyle(IInstrumentSpecification item, int rowIndex)
+    {
+        //bool isSelected = _selectedItem == item; // _selected != null && _selected.Contains(item);
+        bool isSelected = _selectedItem == item;
+        return isSelected ? "background-color: #1E88E5 !important;" : string.Empty;
+    }
+
+    private void SelectedItemChanged(IInstrumentSpecification item)
+    {
+        if (_selectedItem != item)
+        {
+            _selectedItem = item;
+        }
+    }
+}

@@ -1,9 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.13.35818.85 d17.13
+VisualStudioVersion = 17.13.35818.85
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fretworks", "Fretworks\Fretworks.csproj", "{2B0D0F7C-A6C7-4325-A58B-26A1D4607F61}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PutridParrot.FretPositions", "PutridParrot.FretPositions\PutridParrot.FretPositions.csproj", "{B36B3FBE-E71A-43C3-93A0-461DBD9E1CE9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{2B0D0F7C-A6C7-4325-A58B-26A1D4607F61}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2B0D0F7C-A6C7-4325-A58B-26A1D4607F61}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2B0D0F7C-A6C7-4325-A58B-26A1D4607F61}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B36B3FBE-E71A-43C3-93A0-461DBD9E1CE9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B36B3FBE-E71A-43C3-93A0-461DBD9E1CE9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B36B3FBE-E71A-43C3-93A0-461DBD9E1CE9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B36B3FBE-E71A-43C3-93A0-461DBD9E1CE9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

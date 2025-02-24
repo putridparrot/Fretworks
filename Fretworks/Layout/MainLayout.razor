@@ -1,22 +1,22 @@
-﻿@inherits LayoutComponentBase
+﻿@using Fretworks.Config
+@inherits LayoutComponentBase
+@inject Application Application
 
-<MudThemeProvider Theme="@_theme" IsDarkMode="_isDarkMode" />
+<MudThemeProvider Theme="@_theme" IsDarkMode="@Application.IsDarkTheme" />
 <MudPopoverProvider />
 <MudDialogProvider />
 <MudSnackbarProvider />
 
 <MudLayout>
-    @*
     <MudAppBar Elevation="1">
         <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@(_ => DrawerToggle())"/>
-        <MudText Typo="Typo.h5" Class="ml-3">@_title</MudText>
+        <MudText Typo="Typo.h5" Class="ml-3">@Application.Title</MudText>
         <MudSpacer/>
-        <MudIconButton Icon="@(DarkLightModeButtonIcon)" Color="Color.Inherit" OnClick="@DarkModeToggle"/>
+        <MudIconButton Icon="@(Application.DarkLightModeButtonIcon)" Color="Color.Inherit" OnClick="@DarkModeToggle"/>
     </MudAppBar>
     <MudDrawer @bind-Open="_drawerOpen" ClipMode="DrawerClipMode.Always" Elevation="2" Width="250px">
         <NavMenu/>
     </MudDrawer>
-*@ 
     <MudMainContent Class="mt-16 pa-4">
         @Body
     </MudMainContent>
@@ -29,78 +29,16 @@
 </div>
 
 @code {
-    private readonly string _title = "Fretworks";
-
     private bool _drawerOpen = true;
-    private bool _isDarkMode;
     private MudTheme? _theme;
 
     protected override void OnInitialized()
     {
         base.OnInitialized();
 
-        _theme = new()
-            {
-                PaletteLight = _lightPalette,
-                PaletteDark = _darkPalette,
-                LayoutProperties = new LayoutProperties()
-                {
-                    DrawerWidthLeft = "450px",
-                // DrawerWidthRight = "300px"
-                }
-            };
+        _theme = Application.Theme;
     }
 
-
     private void DrawerToggle() => _drawerOpen = !_drawerOpen;
-    private void DarkModeToggle() => _isDarkMode = !_isDarkMode;
-
-    private readonly PaletteLight _lightPalette = new()
-        {
-            AppbarText = "#ffffff",
-            AppbarBackground = "#0C1436",
-            Black = "rgba(39,44,52,1)", //"#110e2d",
-            DrawerBackground = "#ffffff",
-            GrayLight = "#e8e8e8",
-            GrayLighter = "#f9f9f9",
-            TextPrimary = "#000000",
-            TextSecondary = "#92929f",
-            DrawerText = "#000000",
-            Primary = "#0C1436"
-        };
-
-    private readonly PaletteDark _darkPalette = new()
-        {
-            AppbarText = "#ffffff",
-            AppbarBackground = "rgba(26,26,39,0.8)",
-            Primary = "rgba(173,173,177,1)",
-            Surface = "#1e1e2d",
-            Background = "#1a1a27",
-            BackgroundGray = "#151521",
-            DrawerBackground = "#1a1a27",
-            ActionDefault = "#74718e",
-            ActionDisabled = "#9999994d",
-            ActionDisabledBackground = "#605f6d4d",
-            TextPrimary = "#ffffff",
-            TextSecondary = "#92929f",
-            TextDisabled = "#ffffff33",
-            DrawerIcon = "#92929f",
-            DrawerText = "#ffffff",
-            GrayLight = "#2a2833",
-            GrayLighter = "#1e1e2d",
-            Info = "#4a86ff",
-            Success = "#3dcb6c",
-            Warning = "#ffb545",
-            Error = "#ff3f5f",
-            LinesDefault = "#33323e",
-            TableLines = "#33323e",
-            Divider = "#292838",
-            OverlayLight = "#1e1e2d80",
-        };
-
-    public string DarkLightModeButtonIcon => _isDarkMode switch
-    {
-        true => Icons.Material.Rounded.AutoMode,
-        false => Icons.Material.Outlined.DarkMode,
-    };
+    private void DarkModeToggle() => Application.ToggleThemeMode();
 }
