@@ -1,0 +1,104 @@
+﻿@page "/Instruments"
+@using Fretworks.ViewModels
+@using PutridParrot.FretPositions
+@inject InstrumentSpecifications InstrumentSpecifications
+
+<PageTitle>Instruments</PageTitle>
+
+@if (_isLoading)
+{
+    <div class="center-container">
+        <MudProgressCircular Indeterminate="true" Size="Size.Large" Color="Color.Primary" />
+    </div>
+}
+else
+{
+    <MudDataGrid T="InstrumentViewModel" MultiSelection="false" Items="@_all" SortMode="SortMode.Multiple" Filterable="true" QuickFilter="@QuickFilter"
+    Hideable="true" RowClick="@RowClicked" RowContextMenuClick="RowRightClicked" SelectedItemChanged="@SelectedItemChanged"
+    RowStyleFunc="RowStyle">
+        <ToolBarContent>
+            <MudText Typo="Typo.h6">Instruments</MudText>
+            <MudSpacer/>
+            <MudTextField @bind-Value="_searchString" Placeholder="Search" Adornment="Adornment.Start" Immediate="true"
+            AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+        </ToolBarContent>
+        <Columns>
+            <PropertyColumn Property="x => x.Name" Title="Name"/>
+            <PropertyColumn Property="x => x.Frets"/>
+            <PropertyColumn Property="x => x.NutWidthString" Title="Nut Width"/>
+            <PropertyColumn Property="x => x.Headless"/>
+            <PropertyColumn Property="x => x.ScaleLength" Title="Scale Length"/>
+            <PropertyColumn Property="x => x.IsMultiScale" Title="Multi-scale"/>
+            <PropertyColumn Property="x => x.BassScaleLength" Title="Bass Scale Length"/>
+            <PropertyColumn Property="x => x.TrebleScaleLength" Title="Treble Scale Length"/>
+            <PropertyColumn Property="x => x.NeutralFret" Title="Neutral Fret"/>
+        </Columns>
+        <PagerContent>
+            <MudDataGridPager T="InstrumentViewModel"/>
+        </PagerContent>
+    </MudDataGrid>
+}
+
+@code {
+    private List<InstrumentViewModel>? _all;
+    private string? _searchString;
+    private InstrumentViewModel? _selectedItem;
+    private bool _isLoading = true;
+    //private List<string> _events = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            _all = InstrumentSpecifications.Specifications.SelectMany(kv => kv.Value)
+                .Select(i =>
+                {
+                    if (i is SingleScaleInstrumentSpecification si)
+                        return new InstrumentViewModel(si.Name, si.Frets, si.NutWidth, si.Headless, si.Units, si.ScaleLength);
+                    if (i is MultiScaleInstrumentSpecification mi)
+                        return new InstrumentViewModel(mi.Name, mi.Frets, mi.NutWidth, mi.Headless, mi.Units, null, mi.NeutralFret, mi.BassScaleLength, mi.TrebleScaleLength);
+
+                    return null;
+                })
+                .Where(i => i is not null)
+                .ToList();
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+
+    private Func<InstrumentViewModel, bool> QuickFilter => x =>
+    {
+        if (string.IsNullOrWhiteSpace(_searchString))
+            return true;
+
+        if (x.Name.Contains(_searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        return false;
+    };
+
+    private void RowClicked(DataGridRowClickEventArgs<InstrumentViewModel> args)
+    {
+        //_events.Insert(0, $"Event = RowClick, Index = {args.RowIndex}, Data = {System.Text.Json.JsonSerializer.Serialize(args.Item)}");
+    }
+
+    private void RowRightClicked(DataGridRowClickEventArgs<InstrumentViewModel> args)
+    {
+        //_events.Insert(0, $"Event = RowRightClick, Index = {args.RowIndex}, Data = {System.Text.Json.JsonSerializer.Serialize(args.Item)}");
+    }
+
+    private string RowStyle(InstrumentViewModel item, int rowIndex)
+    {
+        bool isSelected = _selectedItem == item;
+        return isSelected ? "background-color: #1E88E5 !important;" : string.Empty;
+    }
+
+    private void SelectedItemChanged(InstrumentViewModel? item)
+    {
+        _selectedItem = item;
+    }
+}
+

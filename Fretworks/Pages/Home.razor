@@ -1,16 +1,27 @@
 ﻿@page "/"
+@using Fretworks.Config
+@inject Application Application
 
 <style>
     body {
         background-color: #303440;
         height: 100%;
     }
+    p {
+        color: white;
+    }
 </style>
 
-<PageTitle>Fretworks</PageTitle>
+<PageTitle>@(Application.Title)</PageTitle>
 
-<div style="display: flex; justify-content: center; align-items: center">
-    <h1 style="font-size: 48px; color: white; text-align: center; margin-top:10%">
+<div style="justify-content: center; align-items: center; margin-top: 10%; text-align: center">
+    <h1 style="font-size: 48px; color: white">
         Under Development
     </h1>
+    <p>
+        This website/application is being developed specifically to help me (a "wannabe" guitar/bass builder) to have information and tooling to help me on my way.
+    </p>
+    <p style="margin-top: 30px">
+        <MudImage Src="icon-192.png" Width="192" Height="192" />
+    </p>
 </div>
