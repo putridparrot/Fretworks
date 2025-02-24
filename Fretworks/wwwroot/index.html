@@ -17,17 +17,19 @@
 </head>
 
 <body>
-<div id="app" class="center-container" style="background-color: #303440">
-    <div style="justify-content: center; align-items: center; text-align: center">
-        <img src="icon-512.png" width="192px" height="192px" />
-        <p style="margin-top: 20px; color: white">
-            Fret-works loading
-        </p>
-        <div class="progress-bar" style="margin-top: 20px">
-            <div class="progress-bar-value"></div>
+    <div id="app">
+        <div id="app" class="center-container">
+            <div style="justify-content: center; align-items: center; text-align: center">
+                <img src="icon-512.png" width="192px" height="192px" />
+                <p style="margin-top: 20px; color: #303440;">
+                    Fret-works loading
+                </p>
+                <div class="progress-bar" style="margin-top: 20px">
+                    <div class="progress-bar-value"></div>
+                </div>
+            </div>
         </div>
     </div>
-</div>
 
     <div id="blazor-error-ui">
         An unhandled error has occurred.
@@ -37,6 +39,6 @@
     <script src="_framework/blazor.webassembly.js"></script>
     <script>navigator.serviceWorker.register('service-worker.js');</script>
     <script src="_content/MudBlazor/MudBlazor.min.js"></script>
-    </body>
+</body>
 
 </html>
