@@ -1,0 +1,124 @@
+﻿@page "/FretPositions"
+@using Fretworks.ViewModels
+@using PutridParrot.FretPositions
+@inject InstrumentSpecifications InstrumentSpecifications
+
+<style>
+    body {
+    height: 100%;
+    }
+</style>
+
+<style>
+    .column-content {
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-right: 2px solid #ccc;
+    }
+
+    .column-content:last-child {
+    border-right: none;
+    }
+</style>
+
+
+<PageTitle>Fret Positions</PageTitle>
+
+
+<MudGrid>
+    <MudItem xs="6">
+        <MudStack>
+            <MudSelect T="string" Label="Select Instrument" Variant="Variant.Text" @bind-Value="@_selected.Instrument">
+                @foreach (var item in _availableInstruments)
+                {
+                    <MudSelectItem Value="@item">@item</MudSelectItem>
+                }
+            </MudSelect>
+            <MudSelect Label="Select Make/Model" Variant="Variant.Text" @bind-Value="@_selected.MakeOrModel"/>
+            <MudSelect Label="Number of Frets" Variant="Variant.Text" @bind-Value="@_selected.NumberOfFrets"/>
+            <MudCheckBox Label="Is Multi-scale" @bind-Value="@_selected.IsMultiScale"/>
+            <!-- Single scale length -->
+            <MudSelect Label="Scale Length (mm or inches)" Variant="Variant.Text" @bind-Value="@_selected.ScaleLength"/>
+            <!-- Multi scale length -->
+            <MudSelect Label="Bass Scale Length (mm or inches)" Variant="Variant.Text" @bind-Value="@_selected.BassScaleLength"/>
+            <MudSelect Label="Treble Scale Length (mm or inches)" Variant="Variant.Text" @bind-Value="@_selected.TrebleScaleLength"/>
+            <MudSelect Label="Neutral Fret" Variant="Variant.Text" @bind-Value="@_selected.NeutralFret"/>
+            <MudButton OnClick="@CalculateAsync">Calculate</MudButton>
+        </MudStack>
+    </MudItem>
+    <MudItem xs="6">
+        <MudDataGrid T="FretPositionsViewModel" MultiSelection="false" Items="@_fretPositions" Hideable="true" Loading="_isLoading" Groupable="false"
+        ReadOnly="true">
+            <Columns>
+                <PropertyColumn Property="x => x.Fret" />
+                <PropertyColumn Property="x => x.DistFromNut" Title="Dist from nut" Hidden="@_selected.IsMultiScale"/>
+                <PropertyColumn Property="x => x.DistPrevFret" Title="Dist prev. fret" Hidden="@_selected.IsMultiScale"/>
+                <PropertyColumn Property="x => x.BassDistFromNut" Title="Bass dist from nut" Hidden="@_selected.IsSingleScale" />
+                <PropertyColumn Property="x => x.BassDistPrevFret" Title="Bass dist prev. fret" Hidden="@_selected.IsSingleScale" />
+                <PropertyColumn Property="x => x.TrebleDistFromNut" Title="Treble dist from nut" Hidden="@_selected.IsSingleScale" />
+                <PropertyColumn Property="x => x.TrebleDistPrevFret" Title="Treble dist prev. fret" Hidden="@_selected.IsSingleScale" />
+                <PropertyColumn Property="x => x.Done" />
+            </Columns>
+        </MudDataGrid>
+    </MudItem>
+</MudGrid>
+@code{
+    private readonly SelectedViewModel _selected = new ();
+    private readonly List<string> _availableInstruments = new ();
+
+    private List<FretPositionsViewModel>? _fretPositions;
+    private bool _isLoading = false;
+
+    protected override Task OnInitializedAsync()
+    {
+        _isLoading = true;
+        try
+        {
+            _availableInstruments.AddRange(InstrumentSpecifications.Specifications.Keys);
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+        return base.OnInitializedAsync();
+    }
+
+    private Task CalculateAsync(MouseEventArgs obj)
+    {
+        _isLoading = true;
+        try
+        {
+            var calculator = new Calculator();
+            if (!_selected.IsMultiScale)
+            {
+                // TODO:
+                _fretPositions = calculator.Calculate(24, 640).Select(i => new FretPositionsViewModel
+                {
+                    Fret = i.Fret,
+                    DistFromNut = i.DistanceFromNut,
+                    DistPrevFret = i.DistanceFromPreviousFret,
+                    Done = false
+                }).ToList();
+            }
+            else
+            {
+                // TODO:
+                _fretPositions = calculator.Calculate(24, 640).Select(i => new FretPositionsViewModel
+                {
+                    Fret = i.Fret,
+                    DistFromNut = i.DistanceFromNut,
+                    DistPrevFret = i.DistanceFromPreviousFret,
+                    Done = false
+                }).ToList();
+            }
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+
+        return Task.CompletedTask;
+    }
+}
