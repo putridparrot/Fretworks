@@ -6,14 +6,15 @@ namespace Fretworks.ViewModels;
 /// A view model representing the combination of the fields from single
 /// and multi-scale instruments
 /// </summary>
-public class InstrumentViewModel(string name, int frets, double nutWidth, bool headless, UnitsOfMeasurement units, 
+public class InstrumentViewModel(string instrumentName, string name, int frets, double nutWidth, bool headless, UnitsOfMeasurement units, 
     double? scaleLength = null, int? neutralFret = null, double? bassScaleLength = null, double? trebleScaleLength = null)
 {
+    public string InstrumentName { get; } = instrumentName;
     public string Name { get; } = name;
     public int Frets { get; } = frets;
     public double? ScaleLength { get; } = scaleLength;
     public double NutWidth { get; } = nutWidth;
-    public bool Headless { get; } = headless;
+    public bool Headless { get; set; } = headless;
     public string NutWidthString => NutWidth <= 0 ? "" : NutWidth.ToString();
     public bool IsMultiScale => BassScaleLength.HasValue && TrebleScaleLength.HasValue;
     public UnitsOfMeasurement Units { get; } = units;
@@ -21,4 +22,10 @@ public class InstrumentViewModel(string name, int frets, double nutWidth, bool h
     public int? NeutralFret { get; } = neutralFret;
     public double? BassScaleLength { get; } = bassScaleLength;
     public double? TrebleScaleLength { get; } = trebleScaleLength;
+}
+
+public class GroupedInstrumentViewModel(string instrumentName, IInstrumentSpecification specification)
+{
+    public string InstrumentName { get; } = instrumentName;
+    public IInstrumentSpecification Specification { get; } = specification;
 }

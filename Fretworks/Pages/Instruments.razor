@@ -3,60 +3,84 @@
 @using PutridParrot.FretPositions
 @inject InstrumentSpecifications InstrumentSpecifications
 
+<style>
+    .full-height {
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .mud-datagrid {
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+        overflow: hidden;
+    }
+
+        .mud-datagrid .mud-table-content {
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .mud-datagrid .mud-table-body {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+        }
+</style>
+
+
 <PageTitle>Instruments</PageTitle>
 
-@if (_isLoading)
-{
-    <div class="center-container">
-        <MudProgressCircular Indeterminate="true" Size="Size.Large" Color="Color.Primary" />
-    </div>
-}
-else
-{
-    <MudDataGrid T="InstrumentViewModel" MultiSelection="false" Items="@_all" SortMode="SortMode.Multiple" Filterable="true" QuickFilter="@QuickFilter"
-    Hideable="true" RowClick="@RowClicked" RowContextMenuClick="RowRightClicked" SelectedItemChanged="@SelectedItemChanged"
-    RowStyleFunc="RowStyle">
-        <ToolBarContent>
-            <MudText Typo="Typo.h6">Instruments</MudText>
-            <MudSpacer/>
-            <MudTextField @bind-Value="_searchString" Placeholder="Search" Adornment="Adornment.Start" Immediate="true"
-            AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
-        </ToolBarContent>
-        <Columns>
-            <PropertyColumn Property="x => x.Name" Title="Name"/>
-            <PropertyColumn Property="x => x.Frets"/>
-            <PropertyColumn Property="x => x.NutWidthString" Title="Nut Width"/>
-            <PropertyColumn Property="x => x.Headless"/>
-            <PropertyColumn Property="x => x.ScaleLength" Title="Scale Length"/>
-            <PropertyColumn Property="x => x.IsMultiScale" Title="Multi-scale"/>
-            <PropertyColumn Property="x => x.BassScaleLength" Title="Bass Scale Length"/>
-            <PropertyColumn Property="x => x.TrebleScaleLength" Title="Treble Scale Length"/>
-            <PropertyColumn Property="x => x.NeutralFret" Title="Neutral Fret"/>
-        </Columns>
-        <PagerContent>
-            <MudDataGridPager T="InstrumentViewModel"/>
-        </PagerContent>
-    </MudDataGrid>
-}
+<MudDataGrid T="InstrumentViewModel" MultiSelection="false" Items="@_all" SortMode="SortMode.Multiple" Filterable="true" QuickFilter="@QuickFilter"
+Hideable="true" RowClick="@RowClicked" RowContextMenuClick="RowRightClicked" SelectedItemChanged="@SelectedItemChanged"
+             ReadOnly="true" RowStyleFunc="RowStyle" Loading="_isLoading" Groupable="false">
+    <ToolBarContent>
+        <MudText Typo="Typo.h6">Instruments</MudText>
+        <MudSpacer/>
+        <MudTextField @bind-Value="_searchString" Placeholder="Search" Adornment="Adornment.Start" Immediate="true"
+        AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+    </ToolBarContent>
+    <Columns>
+        <PropertyColumn Property="x => x.InstrumentName" Title="Instrument" Grouping="false">
+            <GroupTemplate>
+                <span style="font-weight:bold">Instrument: @context.Grouping.Key</span>
+            </GroupTemplate>
+        </PropertyColumn>
+        <PropertyColumn Property="x => x.Name" Title="Name" />
+        <PropertyColumn Property="x => x.Frets"/>
+        <PropertyColumn Property="x => x.NutWidthString" Title="Nut Width"/>
+        <PropertyColumn Property="x => x.Headless" />
+        <PropertyColumn Property="x => x.ScaleLength" Title="Scale Length"/>
+        <PropertyColumn Property="x => x.IsMultiScale" Title="Multi-scale"/>
+        <PropertyColumn Property="x => x.BassScaleLength" Title="Bass Scale Length"/>
+        <PropertyColumn Property="x => x.TrebleScaleLength" Title="Treble Scale Length"/>
+        <PropertyColumn Property="x => x.NeutralFret" Title="Neutral Fret"/>
+    </Columns>
+    <PagerContent>
+        <MudDataGridPager T="InstrumentViewModel"/>
+    </PagerContent>
+</MudDataGrid>
 
 @code {
-    private List<InstrumentViewModel>? _all;
+    private List<InstrumentViewModel?> _all;
     private string? _searchString;
     private InstrumentViewModel? _selectedItem;
     private bool _isLoading = true;
     //private List<string> _events = new();
 
-    protected override async Task OnInitializedAsync()
+    protected override Task OnInitializedAsync()
     {
         try
         {
-            _all = InstrumentSpecifications.Specifications.SelectMany(kv => kv.Value)
-                .Select(i =>
+            _all = InstrumentSpecifications.Specifications
+                .SelectMany(kv => kv.Value.Select(v => new GroupedInstrumentViewModel(kv.Key, v)))
+                .Select(g =>
                 {
-                    if (i is SingleScaleInstrumentSpecification si)
-                        return new InstrumentViewModel(si.Name, si.Frets, si.NutWidth, si.Headless, si.Units, si.ScaleLength);
-                    if (i is MultiScaleInstrumentSpecification mi)
-                        return new InstrumentViewModel(mi.Name, mi.Frets, mi.NutWidth, mi.Headless, mi.Units, null, mi.NeutralFret, mi.BassScaleLength, mi.TrebleScaleLength);
+                    if (g.Specification is SingleScaleInstrumentSpecification si)
+                        return new InstrumentViewModel(g.InstrumentName, si.Name, si.Frets, si.NutWidth, si.Headless, si.Units, si.ScaleLength);
+                    if (g.Specification is MultiScaleInstrumentSpecification mi)
+                        return new InstrumentViewModel(g.InstrumentName, mi.Name, mi.Frets, mi.NutWidth, mi.Headless, mi.Units, null, mi.NeutralFret, mi.BassScaleLength, mi.TrebleScaleLength);
 
                     return null;
                 })
@@ -67,6 +91,8 @@ else
         {
             _isLoading = false;
         }
+
+        return base.OnInitializedAsync();
     }
 
 
@@ -75,8 +101,9 @@ else
         if (string.IsNullOrWhiteSpace(_searchString))
             return true;
 
-        if (x.Name.Contains(_searchString, StringComparison.OrdinalIgnoreCase))
+        if (x.Name.Contains(_searchString, StringComparison.OrdinalIgnoreCase) || x.InstrumentName.Contains(_searchString, StringComparison.OrdinalIgnoreCase))
             return true;
+
         return false;
     };
 
