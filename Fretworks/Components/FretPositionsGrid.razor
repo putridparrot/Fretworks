@@ -1,0 +1,25 @@
+﻿@using Fretworks.ViewModels
+
+<MudDataGrid T="FretPositionsViewModel" MultiSelection="false" Items="@FretPositions" Hideable="true" Loading="@IsLoading" Groupable="false"
+             ReadOnly="true">
+    <Columns>
+        <PropertyColumn Property="x => x.Fret" />
+        <PropertyColumn Property="x => x.DistFromNut" Title="Dist from nut" Hidden="@Selected.IsMultiScale"/>
+        <PropertyColumn Property="x => x.DistPrevFret" Title="Dist prev. fret" Hidden="@Selected.IsMultiScale"/>
+        <PropertyColumn Property="x => x.BassDistFromNut" Title="Bass dist from nut" Hidden="@Selected.IsSingleScale" />
+        <PropertyColumn Property="x => x.BassDistPrevFret" Title="Bass dist prev. fret" Hidden="@Selected.IsSingleScale" />
+        <PropertyColumn Property="x => x.TrebleDistFromNut" Title="Treble dist from nut" Hidden="@Selected.IsSingleScale" />
+        <PropertyColumn Property="x => x.TrebleDistPrevFret" Title="Treble dist prev. fret" Hidden="@Selected.IsSingleScale" />
+        <PropertyColumn Property="x => x.Done" />
+    </Columns>
+</MudDataGrid>
+
+
+@code {
+    [Parameter]
+    public IList<FretPositionsViewModel> FretPositions { get; set; }
+    [Parameter]
+    public bool IsLoading { get; set; }
+    [Parameter]
+    public SelectedViewModel Selected { get; set; }
+}

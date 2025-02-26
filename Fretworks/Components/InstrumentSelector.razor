@@ -1,0 +1,30 @@
+﻿@using Fretworks.ViewModels
+<MudStack>
+    <MudSelect T="string" Label="Select Instrument" Variant="Variant.Text" @bind-Value="@Selected.Instrument">
+        @foreach (var item in AvailableInstruments)
+        {
+            <MudSelectItem Value="@item">@item</MudSelectItem>
+        }
+    </MudSelect>
+    <MudSelect Label="Select Make/Model" Variant="Variant.Text" @bind-Value="@Selected.MakeOrModel"/>
+    <MudSelect Label="Number of Frets" Variant="Variant.Text" @bind-Value="@Selected.NumberOfFrets"/>
+    <MudCheckBox Label="Is Multi-scale" @bind-Value="@Selected.IsMultiScale"/>
+    <!-- Single scale length -->
+    <MudSelect Label="Scale Length (mm or inches)" Variant="Variant.Text" @bind-Value="@Selected.ScaleLength"/>
+    <!-- Multi scale length -->
+    <MudSelect Label="Bass Scale Length (mm or inches)" Variant="Variant.Text" @bind-Value="@Selected.BassScaleLength"/>
+    <MudSelect Label="Treble Scale Length (mm or inches)" Variant="Variant.Text" @bind-Value="@Selected.TrebleScaleLength"/>
+    <MudSelect Label="Neutral Fret" Variant="Variant.Text" @bind-Value="@Selected.NeutralFret"/>
+    <MudButton OnClick="@OnCalculate">Calculate</MudButton>
+</MudStack>
+
+
+@code {
+    [Parameter]
+    public List<string> AvailableInstruments { get; set; }
+    [Parameter]
+    public SelectedViewModel Selected { get; set; }
+
+    [Parameter]
+    public EventCallback OnCalculate { get; set; }
+}

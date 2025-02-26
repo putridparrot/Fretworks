@@ -1,6 +1,7 @@
 ﻿@page "/FretPositions"
 @using Fretworks.ViewModels
 @using PutridParrot.FretPositions
+@using Fretworks.Components
 @inject InstrumentSpecifications InstrumentSpecifications
 
 <style>
@@ -29,39 +30,10 @@
 
 <MudGrid>
     <MudItem xs="6">
-        <MudStack>
-            <MudSelect T="string" Label="Select Instrument" Variant="Variant.Text" @bind-Value="@_selected.Instrument">
-                @foreach (var item in _availableInstruments)
-                {
-                    <MudSelectItem Value="@item">@item</MudSelectItem>
-                }
-            </MudSelect>
-            <MudSelect Label="Select Make/Model" Variant="Variant.Text" @bind-Value="@_selected.MakeOrModel"/>
-            <MudSelect Label="Number of Frets" Variant="Variant.Text" @bind-Value="@_selected.NumberOfFrets"/>
-            <MudCheckBox Label="Is Multi-scale" @bind-Value="@_selected.IsMultiScale"/>
-            <!-- Single scale length -->
-            <MudSelect Label="Scale Length (mm or inches)" Variant="Variant.Text" @bind-Value="@_selected.ScaleLength"/>
-            <!-- Multi scale length -->
-            <MudSelect Label="Bass Scale Length (mm or inches)" Variant="Variant.Text" @bind-Value="@_selected.BassScaleLength"/>
-            <MudSelect Label="Treble Scale Length (mm or inches)" Variant="Variant.Text" @bind-Value="@_selected.TrebleScaleLength"/>
-            <MudSelect Label="Neutral Fret" Variant="Variant.Text" @bind-Value="@_selected.NeutralFret"/>
-            <MudButton OnClick="@CalculateAsync">Calculate</MudButton>
-        </MudStack>
+        <InstrumentSelector Selected="@_selected" AvailableInstruments="@_availableInstruments" OnCalculate="@CalculateAsync"></InstrumentSelector>
     </MudItem>
     <MudItem xs="6">
-        <MudDataGrid T="FretPositionsViewModel" MultiSelection="false" Items="@_fretPositions" Hideable="true" Loading="_isLoading" Groupable="false"
-        ReadOnly="true">
-            <Columns>
-                <PropertyColumn Property="x => x.Fret" />
-                <PropertyColumn Property="x => x.DistFromNut" Title="Dist from nut" Hidden="@_selected.IsMultiScale"/>
-                <PropertyColumn Property="x => x.DistPrevFret" Title="Dist prev. fret" Hidden="@_selected.IsMultiScale"/>
-                <PropertyColumn Property="x => x.BassDistFromNut" Title="Bass dist from nut" Hidden="@_selected.IsSingleScale" />
-                <PropertyColumn Property="x => x.BassDistPrevFret" Title="Bass dist prev. fret" Hidden="@_selected.IsSingleScale" />
-                <PropertyColumn Property="x => x.TrebleDistFromNut" Title="Treble dist from nut" Hidden="@_selected.IsSingleScale" />
-                <PropertyColumn Property="x => x.TrebleDistPrevFret" Title="Treble dist prev. fret" Hidden="@_selected.IsSingleScale" />
-                <PropertyColumn Property="x => x.Done" />
-            </Columns>
-        </MudDataGrid>
+        <FretPositionsGrid FretPositions="@_fretPositions" Selected="@_selected" IsLoading="@_isLoading"/>
     </MudItem>
 </MudGrid>
 @code{
@@ -85,7 +57,7 @@
         return base.OnInitializedAsync();
     }
 
-    private Task CalculateAsync(MouseEventArgs obj)
+    private Task CalculateAsync()
     {
         _isLoading = true;
         try
